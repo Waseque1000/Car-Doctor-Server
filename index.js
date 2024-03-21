@@ -50,7 +50,8 @@ async function run() {
 
     // ` booking  get some
     app.get("/bookings", async (req, res) => {
-      console.log(req.query.email);
+      //   console.log(req.query.email);
+
       let query = {};
       if (req.query?.email) {
         query = { email: req.query.email };
@@ -59,11 +60,33 @@ async function run() {
       res.send(result);
     });
 
+    // ? bookings update
+    app.put("/bookings/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedBookings = req.body;
+      console.log(updatedBookings);
+      const updateDoc = {
+        $set: {
+          status: updatedBookings.status,
+        },
+      };
+      const result = await bookingCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
     //! bookings - add one
     app.post("/bookings", async (req, res) => {
       const booking = req.body;
-      console.log(booking);
       const result = await bookingCollection.insertOne(booking);
+      res.send(result);
+    });
+
+    // ? delete
+    app.delete("/bookings/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await bookingCollection.deleteOne(query);
       res.send(result);
     });
 
