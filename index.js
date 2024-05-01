@@ -23,6 +23,30 @@ const client = new MongoClient(uri, {
   },
 });
 
+//* TODO:  * jot  er jonno function
+const verifyJwt = (req, res, next) => {
+  console.log("hitting jot ");
+  // console.log(req.headers.authorization);
+  const authorization = req.headers.authorization;
+  if (!authorization) {
+    return res
+      .status(401)
+      .send({ error: true, message: "unauthorization access" });
+  }
+  const token = authorization.split(" ")[1];
+  console.log(token);
+  jwt.verify(token, process.env.ACCESS_TOCKEN_SECRET, (error, decoded) => {
+    if (error) {
+      return res
+        .status(403)
+        .send({ error: true, message: "unauthorized access" });
+    }
+    res.decoded = decoded();
+    next();
+  });
+};
+
+//`  TODO:  Mongo db main code
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -34,7 +58,7 @@ async function run() {
     // booking er new collection
     const bookingCollection = client.db("carDoctor01").collection("bookings");
 
-    // ! jwt
+    // ? jwt
     app.post("/jwt", (req, res) => {
       const user = req.body;
       console.log(user);
@@ -61,9 +85,9 @@ async function run() {
     });
 
     // ` booking  get some
-    app.get("/bookings", async (req, res) => {
+    app.get("/bookings", verifyJwt, async (req, res) => {
       // console.log(req.headers);
-      console.log(req.headers.authorization);
+      // console.log(req.headers.authorization);
 
       let query = {};
       if (req.query?.email) {
