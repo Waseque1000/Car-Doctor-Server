@@ -41,7 +41,7 @@ const verifyJwt = (req, res, next) => {
         .status(403)
         .send({ error: true, message: "unauthorized access" });
     }
-    res.decoded = decoded();
+    req.decoded = decoded;
     next();
   });
 };
@@ -84,10 +84,19 @@ async function run() {
       res.send(result);
     });
 
+    //  TODO: Jot er function aikhane add hoise
+
     // ` booking  get some
     app.get("/bookings", verifyJwt, async (req, res) => {
       // console.log(req.headers);
       // console.log(req.headers.authorization);
+      const decoded = req.decoded;
+      console.log("come back ", decoded);
+
+      // TODO:
+      if (decoded.email !== req.query.email) {
+        return res.status(403).send({ error: 1, message: "Forbidden Access" });
+      }
 
       let query = {};
       if (req.query?.email) {
