@@ -1,4 +1,5 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const cors = require("cors");
@@ -33,6 +34,17 @@ async function run() {
     // booking er new collection
     const bookingCollection = client.db("carDoctor01").collection("bookings");
 
+    // ! jwt
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const token = jwt.sign(user, process.env.ACCESS_TOCKEN_SECRET, {
+        expiresIn: "1h",
+      });
+      console.log(token);
+      res.send({ token }); // ! ai token ta string er mto show kortase tai {} aita use kore object banano hoise
+    });
+
     app.get("/services", async (req, res) => {
       const cursor = serviceCollection.find();
       const result = await cursor.toArray();
@@ -50,7 +62,8 @@ async function run() {
 
     // ` booking  get some
     app.get("/bookings", async (req, res) => {
-      //   console.log(req.query.email);
+      // console.log(req.headers);
+      console.log(req.headers.authorization);
 
       let query = {};
       if (req.query?.email) {
